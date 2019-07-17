@@ -1,0 +1,191 @@
+1. Program1: Thread1,Thread2,Thread3,ThreadsInJava
+2. In Threadjoin example 2, we are printing 
+	1 to 10 numbers using one thread, 
+	11 to 20 using another thread
+	21 to 30 using another thread
+
+	Here we are waiting t3 for t2 to complete, same way we are waiting t2 for t1 to complete.
+3.In ThreadInference , We are sharing the common object for two threads and calling the method on common object.
+	Before thread 1 completed, thread 2 enter into the method and by this time the value was updated by thread 1.
+	So thread inference happening when we are sharing the common piece of data.
+	If you observe the output , you can find the data loss.
+	
+4. In TheadInferenceWithSynchronized, we will get the desired output though object is shared by multiple threads as the method in the 
+object is marked as synchronized, so at a time only one thread will acquire the ojbect lock and once the method execution is over, 
+that thread will release the object lock so that other thread can acquire it.
+
+The Logic Behind The Synchronization In Java :
+-------------------------------------------
+
+The synchronization in java is built around an entity called object lock or monitor. Here is the brief description about lock or monitor.
+
+	a) Whenever an object is created to any class, an object lock is created and is stored inside the object.
+		One object will have only one object lock associated with it.
+	b) Any thread wants to enter into synchronized methods or blocks of any object, they must acquire object lock associated with that object 
+		and release the lock after they are done with the execution.
+	c) The other threads which wants to enter into synchronized methods of that object have to wait until the currently executing 
+		thread releases the object lock.
+	d) To enter into static synchronized methods or blocks, threads have to acquire class lock associated with that class as static members are stored inside the class memory.
+
+Synchronized Blocks :
+--------------------
+
+a) Some times, you need only some part of the method to be synchronized not the whole method. This can be achieved with synchronized blocks. 
+Synchronized blocks must be defined inside a definition blocks like methods, constructors, static initializer or instance initializer.
+
+b) synchronized block takes one argument and it is called mutex. 
+	i) If synchronized block is defined inside non-static definition blocks like non-static methods, instance initializer or constructors, 
+		then this mutex must be an instance of that class. 
+	ii) If synchronized block is defined inside static definition blocks like static methods or static initializer, then this mutex 
+		must be like ClassName.class.
+
+Here is an example of static and non-static synchronized blocks.
+
+class Shared
+{
+    static void staticMethod()
+    {
+        synchronized (Shared.class)
+        {
+            //static synchronized block
+        }
+    }
+ 
+    void NonStaticMethod()
+    {
+        synchronized (this)
+        {
+            //Non-static synchronized block
+        }
+    }
+ 
+    void anotherNonStaticMethod()
+    {
+        synchronized (new Shared())
+        {
+            //Non-static synchronized block
+        }
+    }
+}
+
+
+
+Note :
+------
+
+1) You can use synchronized keyword only with methods but not with variables, constructors, static initializer and instance initializers.
+class Shared
+{
+    synchronized int i;    //compile time error, can't use synchronized keyword with variables
+ 
+    synchronized public Shared()
+    {
+        //compile time error, constructors can not be synchronized
+    }
+ 
+    synchronized static
+    {
+        //Compile time error, Static initializer can not be synchronized
+    }
+ 
+    synchronized
+    {
+        //Compile time error, Instance initializer can not be synchronized
+    }
+}
+
+2) Constructors, Static initializer and instance initializer can’t be declared with synchronized keyword, but they can contain synchronized blocks.
+class Shared
+{
+    public Shared()
+    {
+        synchronized (this)
+        {
+            //synchronized block inside a constructor
+        }
+    }
+ 
+    static
+    {
+        synchronized (Shared.class)
+        {
+            //synchronized block inside a static initializer
+        }
+    }
+ 
+    {
+        synchronized (this)
+        {
+            //synchronized block inside a instance initializer
+        }
+    }
+}
+
+3) Both static and non-static methods can use synchronized keyword. For static methods, thread need class level lock and for non-static methods, thread need object level lock.
+class Shared
+{
+    synchronized static void staticMethod()
+    {
+        //static synchronized method
+    }
+ 
+    synchronized void NonStaticMethod()
+    {
+        //Non-static Synchronized method
+    }
+}
+
+4) It is possible that both static synchronized and non-static synchronized methods can run simultaneously. Because, static methods need class level lock and non-static methods need object level lock.
+5) A method can contain any number of synchronized blocks. This is like synchronizing multiple parts of a method.
+class Shared
+{
+    static void staticMethod()
+    {
+        synchronized (Shared.class)
+        {
+            //static synchronized block - 1
+        }
+ 
+        synchronized (Shared.class)
+        {
+            //static synchronized block - 2
+        }
+    }
+ 
+    void NonStaticMethod()
+    {
+        synchronized (this)
+        {
+            //Non-static Synchronized block - 1
+        }
+ 
+        synchronized (this)
+        {
+            //Non-static Synchronized block - 2
+        }
+    }
+}
+6) Synchronization blocks can be nested.
+synchronized (this)
+{
+    synchronized (this)
+    {
+        //Nested synchronized blocks
+    }
+}
+
+7) Lock acquired by the thread before executing a synchronized method or block must be released after the completion of execution, 
+no matter whether execution is completed normally or abnormally (due to exceptions).
+
+8) Synchronization in java is Re-entrant in nature. A thread can not acquire a lock that is owned by another thread. But, a thread can acquire a lock that it already owns. That means if a synchronized method gives a call to another synchronized method which needs same lock, then currently executing thread can directly enter into that method or block without acquiring the lock.
+
+9) synchronized method or block is very slow. They decrease the performance of an application. So, special care need to be taken while using synchronization. Use synchronization only when you needed it the most.
+
+10) Use synchronized blocks instead of synchronized methods. Because, synchronizing some part of a method improves the performance than synchronizing the whole method.
+
+
+Example 5:
+----------
+In DeadLockThread example, thread t1 and t2 are concurrent threads i.e they are executing their task simultaneously. 
+There are two DeadLock class objects, d1 and d2, which are shared by both the threads. 
+DeadLock class has two synchronized methods, method1() and method2(). That means, only one thread can execute these methods at a given time.

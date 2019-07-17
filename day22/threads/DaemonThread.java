@@ -1,0 +1,17 @@
+package com.trainining.day22.threads;
+class DaemonThread extends Thread
+{
+    public DaemonThread()
+    {
+        setDaemon(true);
+    }
+ 
+    @Override
+    public void run()
+    {
+        for(int i = 0; i < 1000; i++)
+        {
+            System.out.println("This is daemon thread....."+i);
+        }
+    }
+}
